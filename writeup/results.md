@@ -1,6 +1,6 @@
 # Results: 2,147 Alerts, 270 Real
 
-Draft, 2026-09-11. Every number comes from the evaluation models in this repo. Data is synthetic (IBM HI-Small).
+Version 1.0, 2026-09-13. Every number comes from the evaluation models in this repo, rebuilt from scratch on that date. Data is synthetic (IBM HI-Small).
 
 ## The needle is 0.102% of the haystack
 
