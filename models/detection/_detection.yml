@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: det_structuring_band
+    description: "Phase 1 rule. Payments worth 9000 to 9999.99 USD. Grain: 1 row per flagged transaction."
+    columns:
+      - name: txn_id
+        data_tests: [unique, not_null]
+  - name: det_structuring_24h
+    description: "Phase 1 rule. 3 or more 5000 to 9999.99 USD payments from one account totalling over 10000 USD in 24 hours."
+    columns:
+      - name: txn_id
+        data_tests: [unique, not_null]
+  - name: det_pass_through
+    description: "Phase 1 rule. Account sends out 90% to 110% of at least 1000 USD received inside 48 hours."
+    columns:
+      - name: txn_id
+        data_tests: [unique, not_null]
+  - name: det_high_velocity
+    description: "Phase 1 rule. Rolling 24 hour outbound count above the 99th percentile of account peaks."
+    columns:
+      - name: txn_id
+        data_tests: [unique, not_null]
+  - name: det_round_amount
+    description: "Phase 1 rule. Exact multiple of 1000 in the payment currency."
+    columns:
+      - name: txn_id
+        data_tests: [unique, not_null]
+  - name: det_cross_currency
+    description: "Phase 1 rule. Receiving currency differs from payment currency. Kept as a documented negative result."
+    columns:
+      - name: txn_id
+        data_tests: [unique, not_null]
+  - name: det_transaction_flags
+    description: "Every int_edges transaction with one boolean per Phase 1 rule."
+    columns:
+      - name: txn_id
+        data_tests: [unique, not_null]

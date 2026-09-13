@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: gr_pairs
+    description: "Directed account pairs with first and last payment time. Grain: 1 row per pair."
+    data_tests:
+      - unique:
+          column_name: "from_account_key || '>' || to_account_key"
+  - name: gr_fan_out
+    description: "Phase 2 typology. 5 or more new receivers inside 72 hours. Grain: 1 row per detection event."
+    columns:
+      - name: account_key
+        data_tests: [not_null]
+  - name: gr_fan_in
+    description: "Phase 2 typology. 5 or more new senders inside 72 hours. Grain: 1 row per detection event."
+    columns:
+      - name: account_key
+        data_tests: [not_null]
+  - name: gr_gather_scatter
+    description: "Phase 2 typology. Fan-in followed by fan-out within 72 hours. Grain: 1 row per account."
+    columns:
+      - name: account_key
+        data_tests: [unique, not_null]
+  - name: gr_cycle_2
+    description: "Phase 2 typology. A pays B and B pays A within 72 hours. Grain: 1 row per unordered pair."
+    data_tests:
+      - unique:
+          column_name: "account_a || '>' || account_b"
+  - name: gr_cycle_3
+    description: "Phase 2 typology. A pays B, B pays C, C pays A within 72 hours. Grain: 1 row per directed cycle."
+    data_tests:
+      - unique:
+          column_name: "account_a || '>' || account_b || '>' || account_c"
+  - name: gr_scatter_gather
+    description: "Phase 2 typology. 3 or more intermediaries between the same source and sink within 72 hours."
+    data_tests:
+      - unique:
+          column_name: "source_key || '>' || intermediary_key || '>' || sink_key"

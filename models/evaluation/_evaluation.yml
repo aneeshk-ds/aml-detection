@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: ev_cutoff_curve
+    description: "Phase 4. Precision, recall and alert volume at every score cutoff, account level."
+    columns:
+      - name: cutoff
+        data_tests: [unique, not_null]
+  - name: ev_flag_performance
+    description: "Phase 4. Precision, recall and lift per flag, at account and transaction level."
+  - name: ev_typology_recall
+    description: "Phase 4. Attempt-level and account-level recall per labeled typology at the chosen cutoff."
+    columns:
+      - name: typology
+        data_tests: [unique, not_null]

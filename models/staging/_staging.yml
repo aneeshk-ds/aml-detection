@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: stg_transactions
+    description: "Typed and renamed transactions. Grain: 1 row per source line."
+    columns:
+      - name: txn_id
+        data_tests: [unique, not_null]
+      - name: txn_ts
+        data_tests: [not_null]
+      - name: from_account_key
+        data_tests: [not_null]
+      - name: to_account_key
+        data_tests: [not_null]
+      - name: is_laundering
+        data_tests:
+          - accepted_values:
+              values: [0, 1]
+              quote: false
+
+  - name: stg_accounts
+    description: "Accounts with bank and entity. Grain: 1 row per account."
+    columns:
+      - name: account_key
+        data_tests: [unique, not_null]
+
+  - name: stg_fx_rates
+    description: "Implied USD rate per currency from USD-paired transactions. Grain: 1 row per currency."
+    columns:
+      - name: currency
+        data_tests: [unique, not_null]
+      - name: usd_per_unit
+        data_tests: [not_null]
+
+  - name: stg_patterns
+    description: "Transactions listed inside labeled laundering attempts. Grain: 1 row per pattern line."
+    columns:
+      - name: attempt_id
+        data_tests: [not_null]
+      - name: typology
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['FAN-OUT', 'FAN-IN', 'GATHER-SCATTER', 'SCATTER-GATHER', 'CYCLE', 'STACK', 'BIPARTITE', 'RANDOM']
+      - name: txn_ts
+        data_tests: [not_null]
+
+  - name: int_transactions_usd
+    description: "stg_transactions with amount_paid_usd and amount_received_usd. Input to every detection model."
+    columns:
+      - name: amount_paid_usd
+        data_tests: [not_null]
+      - name: amount_received_usd
+        data_tests: [not_null]

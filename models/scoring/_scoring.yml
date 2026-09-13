@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: sc_account_risk
+    description: "Phase 3. Weighted risk score per active account. Grain: 1 row per account."
+    columns:
+      - name: account_key
+        data_tests: [unique, not_null]
+      - name: risk_rank
+        data_tests: [unique, not_null]
+      - name: risk_score
+        data_tests: [not_null]
+  - name: sc_top100
+    description: "Phase 3. Top 100 accounts by risk, written to outputs/ranked_accounts.csv."
+    columns:
+      - name: risk_rank
+        data_tests: [unique, not_null]
+      - name: account_key
+        data_tests: [unique, not_null]
+      - name: bank_name
+        data_tests: [not_null]
+      - name: entity_name
+        data_tests: [not_null]
+      - name: risk_score
+        data_tests: [not_null]
+      - name: n_flag_types
+        data_tests: [not_null]
+      - name: n_txns_out
+        data_tests: [not_null]
+      - name: n_txns_in
+        data_tests: [not_null]
+      - name: usd_out
+        data_tests: [not_null]
+      - name: usd_in
+        data_tests: [not_null]

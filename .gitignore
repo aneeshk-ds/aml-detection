@@ -1,0 +1,27 @@
+# source data, read-only and too large for git
+data/
+# DuckDB database and spill files
+*.duckdb
+*.duckdb.wal
+.duckdb_tmp/
+# dbt build artefacts
+target/
+dbt_packages/
+logs/
+# private governance files, never pushed
+About_Me.md
+Communication_Style.md
+Delegations.md
+Execution_Rules.md
+Safety_Defaults.md
+Working_Preferences.md
+council-SKILL.md
+# system
+.DS_Store
+__pycache__/
+.venv/
+# dbt anonymous user id
+.user.yml
+# full Kaggle archive, 49.8 GB, never committed
+archive/
+*.zip

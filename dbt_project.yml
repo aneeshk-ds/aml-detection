@@ -1,0 +1,69 @@
+name: aml_detection
+version: "0.1.0"
+config-version: 2
+profile: aml_detection
+
+model-paths: ["models"]
+test-paths: ["tests"]
+analysis-paths: ["analyses"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Full data by default (scans take 4 to 7 s). Seeded 500k random sample is the fallback if a Phase 2 self-join exceeds the 180 s limit.
+  use_sample: false
+  sample_rows: 500000
+  sample_seed: 42
+
+  # Scope. Self-transfers are 591,212 rows (11.64%) and inflate velocity, fan and cycle counts.
+  exclude_self_transfers: true
+
+  # Phase 1 rules. Every value is set without looking at the laundering label.
+  reporting_threshold_usd: 10000      # common cash reporting threshold (US CTR level)
+  structuring_band_low_usd: 9000      # README: 9000 to 9999.99 just under the threshold
+  structuring_min_txns_24h: 3         # "many" sub-threshold payments read as 3 or more in 24 hours
+  structuring_24h_floor_usd: 5000     # each counted payment is at least half the threshold; without a floor the rule flagged 25.5% of payments
+  pass_through_window_hours: 48       # README
+  pass_through_max_retention: 0.10    # README: keeps less than 10% of what came in
+  pass_through_min_inflow_usd: 1000   # ignores tiny flows; 50% of payments are under 880 USD
+  velocity_percentile: 0.99           # README: top 1% of accounts by peak 24 hour outbound count
+  round_amount_unit: 1000             # README: exact multiple of 1000 in the payment currency
+
+  # Phase 2 typologies
+  graph_window_hours: 72              # activity must fall inside 3 days
+  fan_k: 5                            # README starting k for fan-out and fan-in
+  scatter_gather_k: 3                 # distinct intermediaries between the same source and sink
+
+  # Phase 3 weights (domain reasoning, not tuned on labels; rationale in writeup/methodology.md)
+  weight_pass_through: 3
+  weight_cycle_3: 3
+  weight_scatter_gather: 3
+  weight_gather_scatter: 3
+  weight_structuring_24h: 2
+  weight_fan_out: 2
+  weight_fan_in: 2
+  weight_cycle_2: 1
+  weight_structuring_band: 1
+  weight_high_velocity: 1
+  weight_round_amount: 1
+  weight_cross_currency: 1
+
+  # Phase 4 cutoff rule: lowest score whose alert volume stays within this share of active accounts
+  alert_budget_share: 0.01
+
+models:
+  aml_detection:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    detection:
+      +materialized: table
+    graph:
+      +materialized: table
+    scoring:
+      +materialized: table
+    evaluation:
+      +materialized: table
