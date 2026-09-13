@@ -115,14 +115,6 @@ dbt test --profiles-dir . --threads 1                            # 67 tests, 35 
 
 Known issue: 1 of 2 test runs with 2 threads ended in a Python fatal error (`PyEval_SaveThread`) from dbt-duckdb 1.8.4 with DuckDB 1.1.3. The same tests pass 67 of 67 with `--threads 1`. Model runs with 2 threads did not crash.
 
-If the project folder sits on a slow drive, build the database on local disk instead:
-
-```
-dbt build --profiles-dir . --target vm
-```
-
-The `vm` target in profiles.yml writes the database to /tmp (override with AML_DB_PATH) and leaves outputs in the project folder. On 2026-09-13 the external drive wrote at 1.2 MB/s and a build inside the folder could not finish; the same build against the `vm` target took 6 minutes.
-
 ## Not done yet
 
 - Time-based holdout for thresholds and weights.

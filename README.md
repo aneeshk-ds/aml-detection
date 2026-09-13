@@ -105,10 +105,6 @@ dbt build --profiles-dir .
 A full build takes about 250 seconds of model time on a 2 core machine, and 35 seconds for
 the 67 tests.
 
-If the project folder sits on a slow external drive, build the database on local disk with
-`dbt build --profiles-dir . --target vm` (path overridable with AML_DB_PATH). Outputs still
-land in the project folder.
-
 ## Repo layout
 
 ```

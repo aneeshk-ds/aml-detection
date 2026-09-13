@@ -9,12 +9,3 @@ aml_detection:
         memory_limit: "2GB"
         temp_directory: ".duckdb_tmp"
         preserve_insertion_order: false
-    # Fallback target: build the database on local disk instead of the project folder.
-    # Use when the project folder sits on a slow external drive (dbt run --target vm).
-    vm:
-      type: duckdb
-      path: "{{ env_var('AML_DB_PATH', '/tmp/aml_vm.duckdb') }}"
-      threads: 2
-      settings:
-        memory_limit: "2GB"
-        preserve_insertion_order: false
