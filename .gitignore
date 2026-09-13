@@ -25,3 +25,5 @@ __pycache__/
 # full Kaggle archive, 49.8 GB, never committed
 archive/
 *.zip
+# python libraries installed inside the project, Linux only
+.python_libs/

@@ -102,6 +102,14 @@ pip install -r requirements.txt
 dbt build --profiles-dir .
 ```
 
+The folder also carries its own copy of the libraries in `.python_libs/` (git-ignored,
+Linux x86_64 only, installed from the same pinned versions). To use that copy instead of a
+system install:
+
+```bash
+PYTHONPATH="$PWD/.python_libs" ./.python_libs/bin/dbt build --profiles-dir .
+```
+
 A full build takes about 250 seconds of model time on a 2 core machine, and 35 seconds for
 the 67 tests.
 
