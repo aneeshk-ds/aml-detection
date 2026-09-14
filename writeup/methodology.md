@@ -1,6 +1,6 @@
 # Methodology: AML Transaction Monitoring in SQL
 
-Version 1.1, 2026-09-14. Rebuilt from scratch on 2026-09-13: 26 of 26 models, 67 of 67 tests, every number below reproduced exactly. Extended on 2026-09-14 with ev_baseline_comparison and 6 tests, giving 27 models and 73 of 73 tests.
+Version 1.1, 2026-09-14. Rebuilt from scratch on 2026-09-13: 26 of 26 models, 67 of 67 tests, every number below reproduced exactly. Extended on 2026-09-14 with ev_baseline_comparison and sc_alert_evidence plus 13 tests, giving 28 models and 80 of 80 tests.
 
 ## The data is synthetic and 1 payment in 981 is laundering
 
@@ -21,7 +21,7 @@ data/ (read-only CSVs)
   -> evaluation    ev_cutoff_curve, ev_flag_performance, ev_typology_recall     (Phase 4)
 ```
 
-Stack: dbt-core 1.8.7, dbt-duckdb 1.8.4, DuckDB 1.1.3. 73 data tests. No Python in the detection logic. Every threshold and weight is a variable in `dbt_project.yml`.
+Stack: dbt-core 1.8.7, dbt-duckdb 1.8.4, DuckDB 1.1.3. 80 data tests. No Python in the detection logic. Every threshold and weight is a variable in `dbt_project.yml`.
 
 ## Staging decisions that change the answer
 
@@ -110,10 +110,10 @@ dbt run  --profiles-dir . --select det_pass_through              # 29 s
 dbt run  --profiles-dir . --select det_transaction_flags         # 67 s
 dbt run  --profiles-dir . --select graph                         # scatter_gather 17 s
 dbt run  --profiles-dir . --select scoring evaluation
-dbt test --profiles-dir . --threads 1                            # 73 tests, 58 s
+dbt test --profiles-dir . --threads 1                            # 80 tests
 ```
 
-Known issue: 1 of 2 test runs with 2 threads ended in a Python fatal error (`PyEval_SaveThread`) from dbt-duckdb 1.8.4 with DuckDB 1.1.3. The same tests pass 73 of 73 with `--threads 1`. Model runs with 2 threads did not crash.
+Known issue: 1 of 2 test runs with 2 threads ended in a Python fatal error (`PyEval_SaveThread`) from dbt-duckdb 1.8.4 with DuckDB 1.1.3. The same tests pass 80 of 80 with `--threads 1`. Model runs with 2 threads did not crash.
 
 ## Not done yet
 

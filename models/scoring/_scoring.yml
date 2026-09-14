@@ -33,3 +33,19 @@ models:
         data_tests: [not_null]
       - name: usd_in
         data_tests: [not_null]
+  - name: sc_alert_evidence
+    description: "Phase 3. The evidence behind every alert, as an analyst would see it. Grain: 1 row per alerted account per evidence item. Carries no laundering label on purpose."
+    columns:
+      - name: account_key
+        data_tests: [not_null]
+      - name: risk_rank
+        data_tests: [not_null]
+      - name: risk_score
+        data_tests: [not_null]
+      - name: evidence_class
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['score', 'transaction', 'network', 'profile']
+      - name: evidence_type
+        data_tests: [not_null]

@@ -54,6 +54,13 @@ and 4 on test. Because 81.6% of illicit accounts appear in both windows, this is
 stability rather than an independent sample. Method and caveats are in
 [outputs/holdout.md](outputs/holdout.md).
 
+Every alert also carries its evidence. `sc_alert_evidence` holds 51,130 evidence rows across
+all 2,147 alerted accounts, and `scripts/render_case_file.py` turns any of them into the case
+file an investigator would open: which signals fired and what each contributed, the payments
+that tripped each rule, the account's role in each network typology, and how active the
+account is. No laundering label appears in any of it. Four worked examples, including the
+top-ranked false positive, are in [outputs/case_files.md](outputs/case_files.md).
+
 ## Architecture
 
 ```
@@ -62,12 +69,13 @@ data/ (read-only CSVs)
   -> intermediate  int_transactions_usd, int_edges, int_pattern_transactions
   -> detection     6 rule models + det_transaction_flags
   -> graph         gr_pairs + 6 typology models
-  -> scoring       sc_account_risk, sc_top100 -> outputs/ranked_accounts.csv
+  -> scoring       sc_account_risk, sc_top100 -> outputs/ranked_accounts.csv,
+                   sc_alert_evidence -> outputs/case_files/
   -> evaluation    ev_cutoff_curve, ev_flag_performance, ev_typology_recall,
                    ev_baseline_comparison
 ```
 
-27 models and 73 data tests, built with dbt-core 1.8.7, dbt-duckdb 1.8.4 and DuckDB 1.1.3.
+28 models and 80 data tests, built with dbt-core 1.8.7, dbt-duckdb 1.8.4 and DuckDB 1.1.3.
 
 Detection runs on 4,487,133 payments between 2 different accounts. 591,212 self-transfers
 (11.64% of rows, 11 of them illicit) are excluded so they cannot inflate velocity, fan and
@@ -128,7 +136,7 @@ PYTHONPATH="$PWD/.python_libs" ./.python_libs/bin/dbt build --profiles-dir .
 ```
 
 A full build takes about 250 seconds of model time on a 2 core machine, and 58 seconds for
-the 73 tests.
+the 80 tests.
 
 ## Repo layout
 
@@ -142,7 +150,7 @@ models/scoring/       Phase 3 risk score and ranked accounts
 models/evaluation/    Phase 4 precision, recall, per-typology recall
 tests/                7 custom data tests
 outputs/              gate reports, metrics.md, baseline_comparison.md, holdout.md,
-                      ranked_accounts.csv, project explainer
+                      case_files.md and case_files/, ranked_accounts.csv, project explainer
 writeup/              methodology.md and results.md
 docs/build_brief.md   the original build brief
 ```
@@ -165,7 +173,7 @@ docs/build_brief.md   the original build brief
 
 ## Data quality tests
 
-73 tests run on every build, including row-count parity with the source CSV, uniqueness on
+80 tests run on every build, including row-count parity with the source CSV, uniqueness on
 every key, a check that no rule flags 0 or 100% of payments, a check that no graph detector
 is empty, a recomputation of every risk score from the weights, and a regression anchor that fails
 if the baseline comparison stops reproducing the published 270 and 41 true positives.
