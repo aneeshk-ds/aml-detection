@@ -20,6 +20,15 @@ vars:
   # Scope. Self-transfers are 591,212 rows (11.64%) and inflate velocity, fan and cycle counts.
   exclude_self_transfers: true
 
+  # Time-based holdout window, half-open [window_start, window_end).
+  # 'all' keeps the full period and reproduces every published number.
+  # Train window used on 2026-09-14: 2022-09-01 to 2022-09-06.
+  # Test window used on 2026-09-14:  2022-09-06 to 2022-09-11.
+  # 2022-09-11 onward is excluded from both: 715 payments, 652 of them illicit,
+  # a generator artifact where the legitimate stream stops and laundering tails continue.
+  window_start: 'all'
+  window_end: 'all'
+
   # Phase 1 rules. Every value is set without looking at the laundering label.
   reporting_threshold_usd: 10000      # common cash reporting threshold (US CTR level)
   structuring_band_low_usd: 9000      # README: 9000 to 9999.99 just under the threshold

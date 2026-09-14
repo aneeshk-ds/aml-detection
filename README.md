@@ -10,7 +10,7 @@ typology is DuckDB SQL. No Python in the detection path.
 
 ## Results
 
-Data: IBM Transactions for Anti Money Laundering, HI-Small set (Altman, Kaggle). 18 days,
+Data: IBM Transactions for Anti Money Laundering, HI-Small set (Altman, Kaggle). 18 days, of which only the first 10 carry a legitimate payment stream,
 518,581 accounts, 15 currencies. 5,177 payments are labeled laundering, which is 0.102%,
 or 1 in 981.
 
@@ -46,6 +46,13 @@ of those 2.09 to 1, and the margin holds between 1.6x and 2.2x at every budget f
 51,310. The 8.4x above is measured against random selection. Measured against the baseline a
 reviewer would actually propose, the score is worth 2.09x. Full curve and method are in
 [outputs/baseline_comparison.md](outputs/baseline_comparison.md).
+
+The thresholds were then checked on days they were not set on. Fitting on 2022-09-01 to
+09-05 and reporting on 09-06 to 09-10, lift rose from 8.06 to 11.50 and the velocity
+threshold landed on 20 in both windows. The cutoff rule did not hold: it picks 6 on train
+and 4 on test. Because 81.6% of illicit accounts appear in both windows, this is temporal
+stability rather than an independent sample. Method and caveats are in
+[outputs/holdout.md](outputs/holdout.md).
 
 ## Architecture
 
@@ -134,7 +141,7 @@ models/graph/         Phase 2 typologies
 models/scoring/       Phase 3 risk score and ranked accounts
 models/evaluation/    Phase 4 precision, recall, per-typology recall
 tests/                7 custom data tests
-outputs/              gate reports, metrics.md, baseline_comparison.md,
+outputs/              gate reports, metrics.md, baseline_comparison.md, holdout.md,
                       ranked_accounts.csv, project explainer
 writeup/              methodology.md and results.md
 docs/build_brief.md   the original build brief
@@ -149,7 +156,10 @@ docs/build_brief.md   the original build brief
    ranking by payment count alone still reaches 4.0x lift, so part of the edge is size.
 3. Cycle and scatter-gather timing is tested on account pairs, not on single payments, and
    SQL closes loops of exactly 2 or 3 accounts.
-4. Thresholds and weights are hand-set and have not been validated on held-out days.
+4. Thresholds and weights are hand-set. On a time split they transfer: lift rose from 8.06 to
+   11.50 and the velocity threshold landed on 20 in both windows. The cutoff rule did not,
+   picking 6 on train against 4 on test, and 81.6% of illicit accounts appear in both
+   windows, so this is temporal stability and not an independent sample.
 5. Bitcoin USD values are approximate: the rate implied by the data spans 10,000 to 20,000.
 6. The data is synthetic, so none of these rates transfer directly to a real bank.
 

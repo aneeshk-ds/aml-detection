@@ -17,8 +17,13 @@ select
     is_cross_currency,
     is_laundering
 from {{ ref('int_transactions_usd') }}
+where 1 = 1
 {% if var('exclude_self_transfers') %}
-where not is_self_transfer
+  and not is_self_transfer
+{% endif %}
+{% if var('window_start') != 'all' %}
+  and txn_ts >= timestamp '{{ var("window_start") }}'
+  and txn_ts <  timestamp '{{ var("window_end") }}'
 {% endif %}
 {% if var('use_sample') %}
 using sample reservoir({{ var('sample_rows') }} rows) repeatable ({{ var('sample_seed') }})
