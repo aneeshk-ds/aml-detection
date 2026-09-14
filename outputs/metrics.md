@@ -9,7 +9,7 @@ Run date: 2026-09-11. Data: IBM Transactions for AML, HI-Small (synthetic, Altma
 - **Chosen cutoff:** risk_score >= 6, the lowest cutoff that keeps alerts within 1% of active accounts (cutoff 5 would alert 1.37%)
 - **Alerts:** 2,147 (0.51% of active accounts)
 - **True positives / false positives / false negatives:** 270 / 1,877 / 6,087
-- **Precision:** 12.58%, which is 8.4 times the base rate
+- **Precision:** 12.58%, which is 8.4 times the base rate and 2.09 times the best activity baseline
 - **Recall:** 4.25%
 - **Precision in the top 100:** 41% (41 of 100); top 10: 8 of 10
 
@@ -83,13 +83,27 @@ An attempt counts as caught when at least 1 of its accounts is alerted, because 
 
 Across the 8 named typologies, 209 of 370 attempts (56.5%) have at least 1 alerted account.
 
+## Against the obvious baseline
+
+Ranking the same 422,734 accounts by activity instead of by risk score, at identical alert budgets:
+
+| Alert budget | Model TP | By payment count | By USD volume | Random expected | Model vs best baseline |
+|---|---|---|---|---|---|
+| 100 | 41 | 22 | 14 | 1.5 | 1.86x |
+| 896 | 142 | 73 | 39 | 13.5 | 1.95x |
+| 2,147 (chosen) | 270 | 129 | 68 | 32.3 | 2.09x |
+| 8,118 | 490 | 301 | 227 | 122.1 | 1.63x |
+| 51,310 | 2,162 | 1,102 | 1,156 | 771.6 | 1.87x |
+
+Payment-count ranking alone reaches 6.01% precision at the chosen budget, 4.0 times the base rate, with no model at all. The 8.4 times headline is measured against random selection; against the baseline a reviewer would propose, the score is worth 2.09 times. The margin holds between 1.6x and 2.2x at every budget from 32 to 51,310. Full curve, method and limitations: [baseline_comparison.md](baseline_comparison.md).
+
 ## Where this approach is weak
 
-At cutoff 6 the score raises 2,147 alerts and 270 are illicit accounts: 12.6% precision, 8.4 times the base rate, but 4.2% recall, so 6,087 of 6,357 illicit accounts are never alerted. The score follows activity: alerted accounts have a median of 109 payments, illicit accounts 19 and unflagged accounts 5, and 64 of the top 100 sit in the top 1% of accounts by payment count, so busy accounts crowd out quiet launderers. The account label is broad: an account that received 1 laundering payment counts as illicit, and a single inbound payment rarely trips any rule. Coverage has gaps: the 1,968 illicit payments outside named patterns touch 3,227 accounts and 37 (1.1%) are alerted; SQL closes cycles of exactly 3 accounts only; the cross-currency and round-amount rules flag 0 illicit payments. Cycle and scatter-gather timing is tested on account pairs, not single payments. Thresholds and weights are hand-set and have not been checked on a time-based holdout, Bitcoin USD values are approximate (implied rate 10,000 to 20,000), and the data is synthetic, so none of these rates transfer directly to a real bank.
+At cutoff 6 the score raises 2,147 alerts and 270 are illicit accounts: 12.6% precision, 8.4 times the base rate, but 4.2% recall, so 6,087 of 6,357 illicit accounts are never alerted. The score correlates with activity: alerted accounts have a median of 109 payments, illicit accounts 19 and unflagged accounts 5, and 64 of the top 100 sit in the top 1% of accounts by payment count, so busy accounts crowd out quiet launderers. It is not merely a proxy for size, since it beats payment-count ranking 2.09 to 1 at the same alert budget, but activity alone still reaches 4.0 times lift, so part of the edge is size rather than behaviour. The account label is broad: an account that received 1 laundering payment counts as illicit, and a single inbound payment rarely trips any rule. Coverage has gaps: the 1,968 illicit payments outside named patterns touch 3,227 accounts and 37 (1.1%) are alerted; SQL closes cycles of exactly 3 accounts only; the cross-currency and round-amount rules flag 0 illicit payments. Cycle and scatter-gather timing is tested on account pairs, not single payments. Thresholds and weights are hand-set and have not been checked on a time-based holdout, Bitcoin USD values are approximate (implied rate 10,000 to 20,000), and the data is synthetic, so none of these rates transfer directly to a real bank.
 
 ## What a bank would tune next
 
-1. Peer-group thresholds by entity type and activity band, so volume stops driving the score.
+1. Peer-group thresholds by entity type and activity band. The baseline test shows the score is not merely tracking volume, so this is a recall play against quiet launderers rather than a correction.
 2. Weight 0 for cross_currency and round_amount, confirmed on held-out days rather than the same labels.
 3. A time split: set thresholds on 2022-09-01 to 09-05 and report on 09-06 to 09-10.
 4. Longer cycles and dense subgraphs with graph tooling (Phase 5).

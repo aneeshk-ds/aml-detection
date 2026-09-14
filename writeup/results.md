@@ -35,7 +35,7 @@ At account level, scatter-gather flags 499 accounts and 342 are illicit: 68.5% p
 | 3 | 25,670 | 4.9% | 19.85% |
 | 1 | 51,310 | 4.2% | 34.01% |
 
-The cutoff of 6 is the lowest score that keeps alerts within 1% of active accounts. At that point 270 of 2,147 alerts are real: 8.4 times better than picking accounts at random. The top 100 is 41% illicit; the top 10 is 8 of 10.
+The cutoff of 6 is the lowest score that keeps alerts within 1% of active accounts. At that point 270 of 2,147 alerts are real: 8.4 times better than picking accounts at random, and 2.09 times better than ranking the same accounts by payment count, which finds 129 at the same budget. The top 100 is 41% illicit; the top 10 is 8 of 10.
 
 ## Most attempts leave at least 1 fingerprint
 

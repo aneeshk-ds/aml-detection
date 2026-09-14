@@ -4,7 +4,7 @@ Checked 2026-09-13 against the 7 acceptance criteria in docs/build_brief.md. Eve
 
 | # | Criterion | Status | Evidence |
 |---|---|---|---|
-| 1 | dbt build runs clean, reported with row counts | PASS | Full rebuild with --full-refresh on 2026-09-13: 26 of 26 models OK, then 67 of 67 tests PASS. stg_transactions 5,078,345 rows (5,177 illicit), int_edges 4,487,133 (5,166 illicit), sc_account_risk 422,734 accounts. Every headline number reproduced exactly |
+| 1 | dbt build runs clean, reported with row counts | PASS | Full rebuild with --full-refresh on 2026-09-13: 26 of 26 models OK, then 67 of 67 tests PASS. Extended 2026-09-14 with ev_baseline_comparison and 6 tests: 27 models, 73 of 73 tests PASS. stg_transactions 5,078,345 rows (5,177 illicit), int_edges 4,487,133 (5,166 illicit), sc_account_risk 422,734 accounts. Every headline number reproduced exactly |
 | 2 | Phase 1 implements 5 or more rules, each with a flag rate | PASS | 6 rules: structuring_band 40,700 (0.907%), structuring_24h 80,420 (1.792%), pass_through 49,634 (1.106%), high_velocity 509,124 (11.346%), round_amount 64 (0.001%), cross_currency 2,191 (0.049%) |
 | 3 | Phase 2 detects at least fan-out, fan-in, 2-cycle and 3-cycle, with counts | PASS | fan_out 17,942 accounts, fan_in 7,975 accounts, cycle_2 2,075 pairs, cycle_3 138 cycles, plus scatter_gather 80 routes and gather_scatter 109 accounts |
 | 4 | A ranked top-100 suspicious-accounts table exists | PASS | outputs/ranked_accounts.csv, 100 rows, 22 columns, all populated (not_null tests plus assert_top100_has_100_rows). 41 of the 100 touched laundering |

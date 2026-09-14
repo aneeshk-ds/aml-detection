@@ -23,6 +23,7 @@ At the chosen score cutoff of 6, on 422,734 active accounts:
 | False positives | 1,877 |
 | Precision | 12.58% |
 | Lift over the 1.50% account base rate | 8.4x |
+| Lift over ranking accounts by payment count | 2.09x |
 | Recall | 4.25% |
 | Precision in the top 100 | 41% |
 | Labeled attempts with at least 1 alerted account | 209 of 370 (56.5%) |
@@ -38,6 +39,14 @@ Full numbers, including the precision and recall curve across 15 cutoffs and per
 recall, are in [outputs/metrics.md](outputs/metrics.md). The 7 acceptance criteria and the
 evidence for each are in [outputs/acceptance_check.md](outputs/acceptance_check.md).
 
+The score is also tested against the shortcut it could have been. Ranking the same accounts by
+payment count instead of by risk score finds 129 illicit accounts at the same 2,147 alert
+budget, against 270 for the score; ranking by USD volume finds 68. The score beats the better
+of those 2.09 to 1, and the margin holds between 1.6x and 2.2x at every budget from 32 to
+51,310. The 8.4x above is measured against random selection. Measured against the baseline a
+reviewer would actually propose, the score is worth 2.09x. Full curve and method are in
+[outputs/baseline_comparison.md](outputs/baseline_comparison.md).
+
 ## Architecture
 
 ```
@@ -47,10 +56,11 @@ data/ (read-only CSVs)
   -> detection     6 rule models + det_transaction_flags
   -> graph         gr_pairs + 6 typology models
   -> scoring       sc_account_risk, sc_top100 -> outputs/ranked_accounts.csv
-  -> evaluation    ev_cutoff_curve, ev_flag_performance, ev_typology_recall
+  -> evaluation    ev_cutoff_curve, ev_flag_performance, ev_typology_recall,
+                   ev_baseline_comparison
 ```
 
-26 models and 67 data tests, built with dbt-core 1.8.7, dbt-duckdb 1.8.4 and DuckDB 1.1.3.
+27 models and 73 data tests, built with dbt-core 1.8.7, dbt-duckdb 1.8.4 and DuckDB 1.1.3.
 
 Detection runs on 4,487,133 payments between 2 different accounts. 591,212 self-transfers
 (11.64% of rows, 11 of them illicit) are excluded so they cannot inflate velocity, fan and
@@ -110,8 +120,8 @@ system install:
 PYTHONPATH="$PWD/.python_libs" ./.python_libs/bin/dbt build --profiles-dir .
 ```
 
-A full build takes about 250 seconds of model time on a 2 core machine, and 35 seconds for
-the 67 tests.
+A full build takes about 250 seconds of model time on a 2 core machine, and 58 seconds for
+the 73 tests.
 
 ## Repo layout
 
@@ -124,7 +134,8 @@ models/graph/         Phase 2 typologies
 models/scoring/       Phase 3 risk score and ranked accounts
 models/evaluation/    Phase 4 precision, recall, per-typology recall
 tests/                7 custom data tests
-outputs/              gate reports, metrics.md, ranked_accounts.csv, project explainer
+outputs/              gate reports, metrics.md, baseline_comparison.md,
+                      ranked_accounts.csv, project explainer
 writeup/              methodology.md and results.md
 docs/build_brief.md   the original build brief
 ```
@@ -132,8 +143,10 @@ docs/build_brief.md   the original build brief
 ## Limitations
 
 1. Recall is 4.25% at the chosen cutoff: 6,087 of 6,357 illicit accounts are never alerted.
-2. The score follows activity. Alerted accounts have a median of 109 payments against 19 for
-   illicit accounts, and 64 of the top 100 sit in the busiest 1% of accounts.
+2. The score correlates with activity. Alerted accounts have a median of 109 payments against
+   19 for illicit accounts, and 64 of the top 100 sit in the busiest 1% of accounts. It is not
+   reducible to activity: it beats payment-count ranking 2.09 to 1 at the operating point. But
+   ranking by payment count alone still reaches 4.0x lift, so part of the edge is size.
 3. Cycle and scatter-gather timing is tested on account pairs, not on single payments, and
    SQL closes loops of exactly 2 or 3 accounts.
 4. Thresholds and weights are hand-set and have not been validated on held-out days.
@@ -142,9 +155,10 @@ docs/build_brief.md   the original build brief
 
 ## Data quality tests
 
-67 tests run on every build, including row-count parity with the source CSV, uniqueness on
+73 tests run on every build, including row-count parity with the source CSV, uniqueness on
 every key, a check that no rule flags 0 or 100% of payments, a check that no graph detector
-is empty, and a recomputation of every risk score from the weights.
+is empty, a recomputation of every risk score from the weights, and a regression anchor that fails
+if the baseline comparison stops reproducing the published 270 and 41 true positives.
 
 ## Author
 

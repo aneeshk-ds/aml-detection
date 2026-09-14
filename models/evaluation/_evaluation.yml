@@ -13,3 +13,15 @@ models:
     columns:
       - name: typology
         data_tests: [unique, not_null]
+  - name: ev_baseline_comparison
+    description: "Phase 4. The risk score against payment-count and USD-volume ranking at matched alert budgets, with the random expectation as a floor. Answers whether the score beats ranking accounts by activity."
+    columns:
+      - name: alert_budget
+        data_tests: [not_null]
+      - name: ranker
+        data_tests:
+          - not_null
+          - accepted_values:
+              values: ['model', 'txn_count', 'usd_volume', 'random_expected']
+      - name: tp
+        data_tests: [not_null]
