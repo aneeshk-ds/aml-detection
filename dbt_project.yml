@@ -59,7 +59,12 @@ vars:
   weight_round_amount: 1
   weight_cross_currency: 1
 
-  # Phase 4 cutoff rule: lowest score whose alert volume stays within this share of active accounts
+  # Phase 4 operating point. alert_cutoff is pinned rather than re-derived each run.
+  # The holdout (outputs/holdout.md) showed the budget rule below picks 6 on 2022-09-01 to
+  # 09-05 and 4 on 09-06 to 09-10, so re-deriving it would move the operating point between
+  # periods without anyone deciding to. The budget rule is kept and still reported as
+  # is_budget_rule_cutoff, which is how the pinned value was originally arrived at.
+  alert_cutoff: 6
   alert_budget_share: 0.01
 
 models:

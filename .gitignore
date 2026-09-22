@@ -27,3 +27,18 @@ archive/
 *.zip
 # python libraries installed inside the project, Linux only
 .python_libs/
+
+# local working files, not part of the published project
+outputs/practice/
+outputs/phase0_gate.md
+outputs/phase1_gate.md
+outputs/phase2_gate.md
+outputs/phase3_gate.md
+docs/build_brief.md
+scripts/push_to_github.sh
+outputs/project_explainer.html
+
+# CI scratch
+ci_aml.duckdb
+ci_aml.duckdb.wal
+ci/out/

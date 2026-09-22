@@ -7,12 +7,12 @@ sources:
       - name: hi_small_trans
         description: "One line per transaction. The header repeats the name Account, so columns are renamed on read."
         meta:
-          external_location: "read_csv('data/HI-Small_Trans.csv', header = true, all_varchar = true, names = ['ts', 'from_bank', 'from_acct', 'to_bank', 'to_acct', 'amt_recv', 'recv_cur', 'amt_paid', 'pay_cur', 'pay_fmt', 'is_laundering'])"
+          external_location: "read_csv('{{ var('data_dir', 'data') }}/HI-Small_Trans.csv', header = true, all_varchar = true, names = ['ts', 'from_bank', 'from_acct', 'to_bank', 'to_acct', 'amt_recv', 'recv_cur', 'amt_paid', 'pay_cur', 'pay_fmt', 'is_laundering'])"
       - name: hi_small_accounts
         description: "One line per account, with bank and owning entity."
         meta:
-          external_location: "read_csv('data/HI-Small_accounts.csv', header = true, all_varchar = true, names = ['bank_name', 'bank_id', 'account_number', 'entity_id', 'entity_name'])"
+          external_location: "read_csv('{{ var('data_dir', 'data') }}/HI-Small_accounts.csv', header = true, all_varchar = true, names = ['bank_name', 'bank_id', 'account_number', 'entity_id', 'entity_name'])"
       - name: hi_small_patterns
         description: "Text file of BEGIN and END blocks, one block per labeled laundering attempt. Read as one text value and parsed in stg_patterns."
         meta:
-          external_location: "read_text('data/HI-Small_Patterns.txt')"
+          external_location: "read_text('{{ var('data_dir', 'data') }}/HI-Small_Patterns.txt')"

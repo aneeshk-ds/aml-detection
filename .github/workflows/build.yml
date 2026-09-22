@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  dbt-build:
+    name: Build and test on the synthetic fixture
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dbt
+        run: pip install -r requirements.txt
+
+      - name: Build every model and run the tests
+        # The real HI-Small data is not in the repo, so CI builds against ci/fixture,
+        # a hand-built synthetic set that plants a fan-out, a fan-in, a 2-cycle, a
+        # 3-cycle, a gather-scatter and a scatter-gather route, and trips all 6
+        # transaction rules. Every detector therefore has something to find and this
+        # is a real end-to-end run, not a syntax check.
+        #
+        # tag:full_data_only is excluded: that test asserts figures specific to the
+        # full HI-Small dataset, which the fixture does not reproduce by design.
+        run: |
+          mkdir -p ci/out
+          dbt build \
+            --target ci \
+            --profiles-dir . \
+            --threads 1 \
+            --exclude tag:full_data_only \
+            --vars '{"data_dir": "ci/fixture", "output_dir": "ci/out"}'

@@ -138,6 +138,21 @@ PYTHONPATH="$PWD/.python_libs" ./.python_libs/bin/dbt build --profiles-dir .
 A full build takes about 250 seconds of model time on a 2 core machine, and 58 seconds for
 the 80 tests.
 
+## Continuous integration
+
+Every push builds all 28 models and runs the tests against `ci/fixture`, a small synthetic
+set committed in the repo. It is built deliberately rather than randomly: it plants a
+fan-out, a fan-in, a 2-cycle, a 3-cycle, a gather-scatter and a scatter-gather route, and
+trips all 6 transaction rules, so every detector has something to find and CI is a real
+end-to-end run rather than a syntax check. 107 of 107 checks pass on it.
+
+The fixture contains no IBM or Kaggle data. Every row is invented, which is why it can be
+committed when the real source files cannot. One test is excluded in CI, tagged
+`full_data_only`, because it asserts figures specific to the full HI-Small dataset.
+
+The model DAG is in [docs/lineage.md](docs/lineage.md), generated from the dbt manifest by
+`scripts/render_lineage.py` so it cannot drift from what actually builds.
+
 ## Repo layout
 
 ```
@@ -148,11 +163,14 @@ models/detection/     Phase 1 rules
 models/graph/         Phase 2 typologies
 models/scoring/       Phase 3 risk score and ranked accounts
 models/evaluation/    Phase 4 precision, recall, per-typology recall
-tests/                7 custom data tests
-outputs/              gate reports, metrics.md, baseline_comparison.md, holdout.md,
-                      case_files.md and case_files/, ranked_accounts.csv, project explainer
+tests/                10 custom data tests
+outputs/              metrics.md, baseline_comparison.md, holdout.md,
+                      case_files.md and case_files/, ranked_accounts.csv
 writeup/              methodology.md and results.md
-docs/build_brief.md   the original build brief
+scripts/              fixture generator, lineage renderer, case file renderer
+docs/lineage.md       model DAG, generated from the dbt manifest
+ci/fixture/           synthetic fixture CI builds against
+.github/workflows/    CI definition
 ```
 
 ## Limitations

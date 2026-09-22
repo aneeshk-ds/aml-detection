@@ -1,8 +1,12 @@
 -- Grain: 1 row per score cutoff (every distinct positive risk_score).
 -- Account level: an account is an alert when risk_score >= cutoff, and truly illicit when it
 -- sent or received at least 1 labeled laundering payment.
--- Chosen cutoff: the lowest cutoff whose alerts stay within alert_budget_share (1%) of
--- active accounts. This rule uses alert volume only, never the label.
+-- Chosen cutoff: pinned by the alert_cutoff variable. It is not re-derived per run, because
+-- the holdout showed the budget rule below lands on 6 in one 5 day window and 4 in the next,
+-- which would move the operating point between periods by accident.
+-- is_budget_rule_cutoff still reports what that rule would pick: the lowest cutoff whose
+-- alerts stay within alert_budget_share (1%) of active accounts, using alert volume only and
+-- never the label. That rule is how the pinned value of 6 was originally chosen.
 with accounts as (
     select risk_score, case when is_laundering_account then 1 else 0 end as is_pos
     from {{ ref('sc_account_risk') }}
@@ -46,6 +50,7 @@ curve as (
 
 select
     *,
-    cutoff = (select min(cutoff) from curve where alert_share <= {{ var('alert_budget_share') }}) as is_chosen_cutoff
+    cutoff = {{ var('alert_cutoff') }}                                                            as is_chosen_cutoff,
+    cutoff = (select min(cutoff) from curve where alert_share <= {{ var('alert_budget_share') }}) as is_budget_rule_cutoff
 from curve
 order by cutoff desc

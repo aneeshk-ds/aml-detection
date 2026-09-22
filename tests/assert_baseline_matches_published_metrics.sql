@@ -2,6 +2,9 @@
 -- 270 true positives at the 2,147 alert operating point, and 41 in the top 100.
 -- This is the anchor proving ev_baseline_comparison scores the same accounts the
 -- headline results score, so the baseline margin cannot drift away from the metrics.
+{{ config(tags = ['full_data_only']) }}
+-- Tagged full_data_only: the 270 and 41 figures are properties of the HI-Small dataset, so
+-- CI excludes this test when it builds against the small synthetic fixture.
 select alert_budget, tp
 from {{ ref('ev_baseline_comparison') }}
 where ranker = 'model'

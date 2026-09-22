@@ -1,6 +1,6 @@
 -- Grain: 1 row per account, the 100 highest-risk accounts. Written to outputs/ranked_accounts.csv.
 -- The laundering label is left out on purpose: this is the alert list an analyst would see.
-{{ config(materialized = 'external', location = 'outputs/ranked_accounts.csv', format = 'csv') }}
+{{ config(materialized = 'external', location = var('output_dir', 'outputs') ~ '/ranked_accounts.csv', format = 'csv') }}
 
 select
     r.risk_rank,

@@ -9,3 +9,10 @@ aml_detection:
         memory_limit: "2GB"
         temp_directory: ".duckdb_tmp"
         preserve_insertion_order: false
+    ci:
+      type: duckdb
+      path: ci_aml.duckdb
+      threads: 1
+      settings:
+        memory_limit: "2GB"
+        preserve_insertion_order: false
